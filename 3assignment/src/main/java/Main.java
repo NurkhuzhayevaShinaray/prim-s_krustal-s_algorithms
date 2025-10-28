@@ -6,8 +6,8 @@ import org.json.simple.parser.JSONParser;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String inputPath = "data/input_example.json";
-        String outputPath = "data/output_example.json";
+        String inputPath = "C:\\Users\\user\\IdeaProjects\\prim-s_krustal-s_algorithms\\3assignment\\src\\main\\resources\\input_example.json";
+        String outputPath = "C:\\Users\\user\\IdeaProjects\\prim-s_krustal-s_algorithms\\3assignment\\src\\main\\resources\\output_example.json";
 
         JSONParser parser = new JSONParser();
         JSONObject input = (JSONObject) parser.parse(new FileReader(inputPath));
