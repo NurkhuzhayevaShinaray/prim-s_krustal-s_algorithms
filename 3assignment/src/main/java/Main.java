@@ -49,14 +49,14 @@ public class Main {
             inputStats.put("edges", graph.E());
             result.put("input_stats", inputStats);
 
-            // Prim
+
             long start = System.nanoTime();
             PrimMST prim = new PrimMST(graph);
             long end = System.nanoTime();
             JSONObject primJson = JsonUtils.buildAlgorithmResult(prim, names, start, end);
             result.put("prim", primJson);
 
-            // Kruskal
+
             start = System.nanoTime();
             KruskalMST kr = new KruskalMST(graph);
             end = System.nanoTime();

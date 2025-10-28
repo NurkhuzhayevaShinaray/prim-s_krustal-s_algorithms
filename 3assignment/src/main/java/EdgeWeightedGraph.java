@@ -7,7 +7,6 @@ public class EdgeWeightedGraph {
     private int E;
     private List<Edge>[] adj;
 
-    @SuppressWarnings("unchecked")
     public EdgeWeightedGraph(int V) {
         this.V = V;
         this.E = 0;
@@ -15,8 +14,10 @@ public class EdgeWeightedGraph {
         for (int v = 0; v < V; v++) adj[v] = new ArrayList<>();
     }
 
-    public int V() { return V; }
-    public int E() { return E; }
+    public int V() {
+        return V; }
+    public int E() {
+        return E; }
 
     public void addEdge(Edge e) {
         int v = e.either();

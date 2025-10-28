@@ -2,9 +2,9 @@ import java.util.Iterator;
 public class PrimMST {
     private static final double FLOATING_POINT_EPSILON = 1.0E-12;
 
-    private Edge[] edgeTo;        // shortest edge from tree vertex to non-tree vertex
-    private double[] distTo;      // distTo[v] = weight of shortest such edge
-    private boolean[] marked;     // on tree
+    private Edge[] edgeTo;
+    private double[] distTo;
+    private boolean[] marked;
     private IndexMinPQ<Double> pq;
     private int operationCount = 0;
 
@@ -33,21 +33,19 @@ public class PrimMST {
         marked[v] = true;
         for (Edge e : G.adj(v)) {
             int w = e.other(v);
-            // increment for the check whether w is marked
             operationCount++;
             if (marked[w]) continue;
-            // increment for weight comparison
             operationCount++;
             if (e.weight() < distTo[w] - 1e-12) {
                 distTo[w] = e.weight();
                 edgeTo[w] = e;
-                operationCount++; // update operation
+                operationCount++;
                 if (pq.contains(w)) {
                     pq.decreaseKey(w, distTo[w]);
-                    operationCount++; // decreaseKey counted
+                    operationCount++;
                 } else {
                     pq.insert(w, distTo[w]);
-                    operationCount++; // insert counted
+                    operationCount++;
                 }
             }
         }
