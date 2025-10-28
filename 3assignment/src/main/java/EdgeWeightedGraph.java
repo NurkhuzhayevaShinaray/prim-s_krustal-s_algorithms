@@ -37,7 +37,6 @@ public class EdgeWeightedGraph {
         for (int v = 0; v < V; v++) {
             for (Edge e : adj[v]) {
                 int w = e.other(v);
-                // add each undirected edge once
                 if (v <= w) list.add(e);
             }
         }

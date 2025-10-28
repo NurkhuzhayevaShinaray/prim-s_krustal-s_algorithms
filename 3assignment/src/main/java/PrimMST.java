@@ -22,7 +22,7 @@ public class PrimMST {
 
     private void prim(EdgeWeightedGraph G, int s) {
         distTo[s] = 0.0;
-        try { pq.insert(s, distTo[s]); } catch (Exception ex) { /* shouldn't happen */ }
+        try { pq.insert(s, distTo[s]); } catch (Exception ex) {}
         while (!pq.isEmpty()) {
             int v = pq.delMin();
             scan(G, v);

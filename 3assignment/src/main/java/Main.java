@@ -20,8 +20,6 @@ public class Main {
             long id = (long) gJson.get("id");
             JSONArray nodes = (JSONArray) gJson.get("nodes");
             JSONArray edges = (JSONArray) gJson.get("edges");
-
-            // Map node names to indices 0..n-1
             Map<String, Integer> index = new HashMap<>();
             List<String> names = new ArrayList<>();
             for (int i = 0; i < nodes.size(); i++) {
