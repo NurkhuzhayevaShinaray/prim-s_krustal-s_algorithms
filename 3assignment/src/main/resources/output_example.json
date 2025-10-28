@@ -1,0 +1,123 @@
+import java.io.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+class Edge implements Comparable<Edge> {
+private final String from;
+private final String to;
+private final double weight;
+
+public Edge(String from, String to, double weight) {
+this.from = from;
+this.to = to;
+this.weight = weight;
+}
+
+public String getFrom() { return from; }
+public String getTo() { return to; }
+public double getWeight() { return weight; }
+
+@Override
+public int compareTo(Edge other) {
+return Double.compare(this.weight, other.weight);
+}
+
+@Override
+public String toString() {
+return String.format("%s-%s %.2f", from, to, weight);
+}
+
+@Override
+public boolean equals(Object obj) {
+if (this == obj) return true;
+if (obj == null || getClass() != obj.getClass()) return false;
+Edge edge = (Edge) obj;
+return Double.compare(edge.weight, weight) == 0 &&
+Objects.equals(from, edge.from) &&
+Objects.equals(to, edge.to);
+}
+
+@Override
+public int hashCode() {
+return Objects.hash(from, to, weight);
+}
+}
+
+class Graph {
+private Map<String, List<Edge>> adjacencyList = new HashMap<>();
+private List<Edge> allEdges = new ArrayList<>();
+private Set<String> vertices = new HashSet<>();
+
+public void addEdge(String from, String to, double weight) {
+Edge edge = new Edge(from, to, weight);
+allEdges.add(edge);
+vertices.add(from);
+vertices.add(to);
+
+adjacencyList.computeIfAbsent(from, k -> new ArrayList<>()).add(edge);
+adjacencyList.computeIfAbsent(to, k -> new ArrayList<>()).add(edge);
+}
+
+public List<Edge> getAdjacentEdges(String vertex) {
+return adjacencyList.getOrDefault(vertex, new ArrayList<>());
+}
+
+public List<Edge> getAllEdges() {
+return allEdges;
+}
+
+public Set<String> getVertices() {
+return vertices;
+}
+
+public int getVertexCount() {
+return vertices.size();
+}
+
+public int getEdgeCount() {
+return allEdges.size();
+}
+}
+
+// Union-Find data structure for Kruskal's algorithm
+class UnionFind {
+private Map<String, String> parent = new HashMap<>();
+private Map<String, Integer> rank = new HashMap<>();
+private int unionCount = 0;
+private int findCount = 0;
+
+public void makeSet(String vertex) {
+parent.put(vertex, vertex);
+rank.put(vertex, 0);
+}
+
+public String find(String vertex) {
+findCount++;
+if (!parent.get(vertex).equals(vertex)) {
+parent.put(vertex, find(parent.get(vertex)));
+}
+return parent.get(vertex);
+}
+
+public void union(String vertex1, String vertex2) {
+unionCount++;
+String root1 = find(vertex1);
+String root2 = find(vertex2);
+
+if (!root1.equals(root2)) {
+if (rank.get(root1) < rank.get(root2)) {
+parent.put(root1, root2);
+} else if (rank.get(root1) > rank.get(root2)) {
+parent.put(root2, root1);
+} else {
+parent.put(root2, root1);
+rank.put(root1, rank.get(root1) + 1);
+}
+}
+}
+
+public int getUnionCount() { return unionCount; }
+public int getFindCount() { return findCount; }
+public int getTotalOperations() { return unionCount + findCount; }
+}

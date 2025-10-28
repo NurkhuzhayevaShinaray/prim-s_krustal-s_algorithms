@@ -1,62 +1,74 @@
-class PrimMST {
-    private List<Edge> mstEdges = new ArrayList<>();
-    private double totalCost = 0.0;
-    private int operationsCount = 0;
-    private long executionTime = 0;
+import java.util.Iterator;
+public class PrimMST {
+    private static final double FLOATING_POINT_EPSILON = 1.0E-12;
 
-    public void findMST(Graph graph) {
-        long startTime = System.nanoTime();
-        operationsCount = 0;
+    private Edge[] edgeTo;        // shortest edge from tree vertex to non-tree vertex
+    private double[] distTo;      // distTo[v] = weight of shortest such edge
+    private boolean[] marked;     // on tree
+    private IndexMinPQ<Double> pq;
+    private int operationCount = 0;
 
-        if (graph.getVertexCount() == 0) return;
+    public PrimMST(EdgeWeightedGraph G) {
+        edgeTo = new Edge[G.V()];
+        distTo = new double[G.V()];
+        marked = new boolean[G.V()];
+        pq = new IndexMinPQ<Double>(G.V());
+        for (int v = 0; v < G.V(); v++) distTo[v] = Double.POSITIVE_INFINITY;
 
-        Set<String> visited = new HashSet<>();
-        PriorityQueue<Edge> pq = new PriorityQueue<>();
-        Map<String, Edge> minEdge = new HashMap<>();
-
-        // Start with first vertex
-        String startVertex = graph.getVertices().iterator().next();
-        visited.add(startVertex);
-        operationsCount++;
-
-        // Add all edges from start vertex to priority queue
-        for (Edge edge : graph.getAdjacentEdges(startVertex)) {
-            pq.offer(edge);
-            operationsCount++;
+        for (int v = 0; v < G.V(); v++) {
+            if (!marked[v]) prim(G, v);
         }
+    }
 
-        while (!pq.isEmpty() && visited.size() < graph.getVertexCount()) {
-            Edge edge = pq.poll();
-            operationsCount++;
+    private void prim(EdgeWeightedGraph G, int s) {
+        distTo[s] = 0.0;
+        try { pq.insert(s, distTo[s]); } catch (Exception ex) { /* shouldn't happen */ }
+        while (!pq.isEmpty()) {
+            int v = pq.delMin();
+            scan(G, v);
+        }
+    }
 
-            String nextVertex = null;
-            if (visited.contains(edge.getFrom()) && !visited.contains(edge.getTo())) {
-                nextVertex = edge.getTo();
-            } else if (visited.contains(edge.getTo()) && !visited.contains(edge.getFrom())) {
-                nextVertex = edge.getFrom();
-            }
-
-            if (nextVertex != null) {
-                visited.add(nextVertex);
-                mstEdges.add(edge);
-                totalCost += edge.getWeight();
-                operationsCount += 2;
-
-                // Add edges from the new vertex
-                for (Edge adjEdge : graph.getAdjacentEdges(nextVertex)) {
-                    if (!visited.contains(adjEdge.getFrom()) || !visited.contains(adjEdge.getTo())) {
-                        pq.offer(adjEdge);
-                        operationsCount++;
-                    }
+    private void scan(EdgeWeightedGraph G, int v) {
+        marked[v] = true;
+        for (Edge e : G.adj(v)) {
+            int w = e.other(v);
+            // increment for the check whether w is marked
+            operationCount++;
+            if (marked[w]) continue;
+            // increment for weight comparison
+            operationCount++;
+            if (e.weight() < distTo[w] - 1e-12) {
+                distTo[w] = e.weight();
+                edgeTo[w] = e;
+                operationCount++; // update operation
+                if (pq.contains(w)) {
+                    pq.decreaseKey(w, distTo[w]);
+                    operationCount++; // decreaseKey counted
+                } else {
+                    pq.insert(w, distTo[w]);
+                    operationCount++; // insert counted
                 }
             }
         }
-
-        executionTime = (System.nanoTime() - startTime) / 1000000;
     }
 
-    public List<Edge> getMstEdges() { return mstEdges; }
-    public double getTotalCost() { return totalCost; }
-    public int getOperationsCount() { return operationsCount; }
-    public long getExecutionTime() { return executionTime; }
+    public Iterable<Edge> edges() {
+        Queue<Edge> mst = new Queue<>();
+        for (int v = 0; v < edgeTo.length; v++) {
+            Edge e = edgeTo[v];
+            if (e != null) mst.enqueue(e);
+        }
+        return mst;
+    }
+
+    public double weight() {
+        double weight = 0.0;
+        for (Edge e : edges()) weight += e.weight();
+        return weight;
+    }
+
+    public int getOperationCount() {
+        return operationCount;
+    }
 }
