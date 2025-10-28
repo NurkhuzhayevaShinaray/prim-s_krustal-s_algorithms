@@ -1,8 +1,10 @@
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.StringWriter;
 import java.util.*;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.JSONValue;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -47,13 +49,11 @@ public class Main {
             inputStats.put("edges", graph.E());
             result.put("input_stats", inputStats);
 
-
             long start = System.nanoTime();
             PrimMST prim = new PrimMST(graph);
             long end = System.nanoTime();
             JSONObject primJson = JsonUtils.buildAlgorithmResult(prim, names, start, end);
             result.put("prim", primJson);
-
 
             start = System.nanoTime();
             KruskalMST kr = new KruskalMST(graph);
@@ -68,10 +68,57 @@ public class Main {
         output.put("results", results);
 
         try (FileWriter file = new FileWriter(outputPath)) {
-            file.write(output.toJSONString());
+            file.write(prettyPrintJSON(output.toJSONString()));
             file.flush();
         }
 
         System.out.println("Finished. Results written to " + outputPath);
+    }
+
+    public static String prettyPrintJSON(String json) {
+        StringBuilder pretty = new StringBuilder();
+        int indent = 0;
+        boolean inQuotes = false;
+
+        for (int i = 0; i < json.length(); i++) {
+            char c = json.charAt(i);
+
+            if (c == '"') {
+                pretty.append(c);
+
+                if (i == 0 || json.charAt(i - 1) != '\\') {
+                    inQuotes = !inQuotes;
+                }
+            } else if (!inQuotes) {
+                switch (c) {
+                    case '{':
+                    case '[':
+                        pretty.append(c).append("\n");
+                        indent++;
+                        pretty.append("  ".repeat(indent));
+                        break;
+                    case '}':
+                    case ']':
+                        pretty.append("\n");
+                        indent--;
+                        pretty.append("  ".repeat(indent)).append(c);
+                        break;
+                    case ',':
+                        pretty.append(c).append("\n");
+                        pretty.append("  ".repeat(indent));
+                        break;
+                    case ':':
+                        pretty.append(": ");
+                        break;
+                    default:
+                        if (!Character.isWhitespace(c)) {
+                            pretty.append(c);
+                        }
+                }
+            } else {
+                pretty.append(c);
+            }
+        }
+        return pretty.toString();
     }
 }
